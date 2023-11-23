@@ -206,15 +206,15 @@ static void sendControlRequest(char line[])
 	
 	// Parse the option async parameter
 	BOOL async;
-	DWORD asyncval;
-	line = parseNumber(line, asyncval);
-	if (line && asyncval != 0) {
-		printf("Performing control request asynchronously.\n");
+	// DWORD asyncval;
+	// line = parseNumber(line, asyncval);
+	// if (line && asyncval != 0) {
+	// 	printf("Performing control request asynchronously.\n");
 		async = TRUE;
-	} else {
-		printf("Performing control request synchronously.\n");
-		async = FALSE;
-	}
+	// } else {
+	// 	printf("Performing control request synchronously.\n");
+	// 	async = FALSE;
+	// }
 	
 	// Input validated so form the request
 	UKW_DEVICE device = gDeviceList[devIdx];
