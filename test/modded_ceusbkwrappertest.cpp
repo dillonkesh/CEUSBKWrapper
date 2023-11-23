@@ -709,22 +709,22 @@ static void performKernelAttachOperation(char line[])
 static BOOL findAAPEndpoints(UKW_DEVICE& device, UCHAR& epin, UCHAR& epout)
 {
 	// Device must be in AAP mode:
-	// vendorID = 0x18D1, productID = 0x2D00 or 0x2D01
+	// vendorID = 0x483, productID = 0xDF11 or 0x5740
 	UKW_DEVICE_DESCRIPTOR desc;
 	if (!UkwGetDeviceDescriptor(device, &desc)) {
 		printf("Failed to retrieve device descriptor: error %d\n", GetLastError());
 		return FALSE;
 	}
 
-	if (desc.idVendor != 0x18D1 || (desc.idProduct != 0x2D00 && desc.idProduct != 0x2D01)) {
+	if (desc.idVendor != 0x483 || (desc.idProduct != 0xDF11 && desc.idProduct != 0x5740)) {
 		printf("Device is not in AAP mode (idVendor = 0x%.2x, idProduct = 0x%.2x)\n", desc.idVendor, desc.idProduct);
 		return FALSE;
 	}
 
 	// Really, we should scan the interface descriptor for this info.
-	// Fake up (based on LG Optimus 2X P990 (CyanogenMod7 OS)) for now.
-	epin = 8;
-	epout = 6;
+	// Fake it for now
+	epin = 0x81;
+	epout = 0x01;
 	return TRUE;
 }
 
@@ -792,20 +792,21 @@ static void startAAPBulkTransfer(char line[])
 			}
 		case 'w':
 			{
-				// Write a AAP handshake bulk transfer
-				UCHAR Handshake[10];
-				Handshake[0] = 0xff;
-				Handshake[1] = 0xff;
-				Handshake[2] = 0x00;
-				Handshake[3] = 0x00;
-				Handshake[4] = 0x0a;
-				Handshake[5] = 0x0a;
-				Handshake[6] = 'H';
-				Handshake[7] = 'O';
-				Handshake[8] = 'S';
-				Handshake[9] = 'T';
+				// // Write a AAP handshake bulk transfer
+				// UCHAR Handshake[10];
+				// Handshake[0] = 0xff;
+				// Handshake[1] = 0xff;
+				// Handshake[2] = 0x00;
+				// Handshake[3] = 0x00;
+				// Handshake[4] = 0x0a;
+				// Handshake[5] = 0x0a;
+				// Handshake[6] = 'H';
+				// Handshake[7] = 'O';
+				// Handshake[8] = 'S';
+				// Handshake[9] = 'T';
+				scanf("%s", buf);
 
-				memcpy(buf, Handshake, 10);
+				// memcpy(buf, Handshake, 10);
 				if (!UkwIssueBulkTransfer(device, UKW_TF_IN_TRANSFER, epout, buf, 10, &bytesTransferred, &overlapped)) {
 					printf("Failed to write bulk transfer from endpoint %d on device %d: error %d", epin, devIdx, GetLastError());
 				} else if (waitForOverlapped(overlapped)) {
