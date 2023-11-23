@@ -190,7 +190,15 @@ static BOOL waitForOverlapped(OVERLAPPED& overlapped)
 	return FALSE;
 }
 
-static void sendControlRequest(char line[])
+static void sendControlRequest(
+    char line[], 
+    UINT8 bmRequestType, 
+    UINT8 bRequest,
+    UINT16 wValue,
+    UINT16 wIndex,
+    UINT16 wLength,
+    unsigned char* data
+    )
 {
 	// Parse the device index
 	DWORD devIdx = 0;
@@ -210,10 +218,10 @@ static void sendControlRequest(char line[])
 	// line = parseNumber(line, asyncval);
 	// if (line && asyncval != 0) {
 	// 	printf("Performing control request asynchronously.\n");
-		async = TRUE;
+		// async = TRUE;
 	// } else {
 	// 	printf("Performing control request synchronously.\n");
-	// 	async = FALSE;
+		async = FALSE;
 	// }
 	
 	// Input validated so form the request
@@ -229,11 +237,11 @@ static void sendControlRequest(char line[])
 		}
 	}
 	DWORD flags = UKW_TF_OUT_TRANSFER;
-	header.bmRequestType = 0x40;
-	header.bRequest = 0xF0;
-	header.wValue = 0x0001;
-	header.wIndex = 0x0000;
-	header.wLength = 0x0000;
+	header.bmRequestType = bmRequestType;
+	header.bRequest = bRequest;
+	header.wValue = wValue;
+	header.wIndex = wIndex;
+	header.wLength = wLength;
 	// Now perform the request
 	DWORD transferred = -1;
 	BOOL status = UkwIssueControlTransfer(device, flags, &header,
