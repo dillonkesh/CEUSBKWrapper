@@ -63,7 +63,7 @@ static void printMenu()
 		if (gDeviceListSize) {
 			printf("p ) print USB device list\n");
 			printf("r ) release USB device list\n");
-			printf("m ) send a control request\n");
+			printf("m ) setup serial connection\n");
 			printf("a ) request AAP mode from device\n");
 			printf("br) read bulk transfer from AAP device\n");
 			printf("bw) write bulk transfer to AAP device\n");
@@ -902,6 +902,7 @@ static void performHaltOperation(char line[])
 
 static BOOL handleCommand(char line[])
 {
+    int rc = 0;
 	BOOL ret = TRUE;
 	if (strcmp(line, "q") == 0)
 		ret = FALSE;
@@ -926,8 +927,11 @@ static BOOL handleCommand(char line[])
 	else if (line[0] == 'm' &&
 		gDeviceHandle != INVALID_HANDLE_VALUE &&
 		gDeviceListSize > 0)
-        setupSerial(line + 1)
-		sendControlRequest(line + 1);
+        // Setup Serial Connection
+        rc = setupSerial(line + 1);
+        if (rc < 0) {
+            printf(stderr, "setupSerial()");
+        }   
 	else if (line[0] == 'a' &&
 		gDeviceHandle != INVALID_HANDLE_VALUE &&
 		gDeviceListSize > 0)
@@ -1019,7 +1023,7 @@ static int setupSerial(char line[])
         0
         );
     if (rc < 0) {
-        printf(stderr, "setupSerial(): Error during Set Line State control transfer");
+        printf("setupSerial(): Error during Set Line State control transfer");
         return -1;
     }
     
@@ -1036,10 +1040,10 @@ static int setupSerial(char line[])
         0
         );
     if (rc < 0) {
-        printf(stderr, "setupSerial(): Error during Set Line State control transfer");
+        printf("setupSerial(): Error during Set Line State control transfer");
         return -1;
     }
-    
+    return 0;
 }
 
 int _tmain(int argc, TCHAR *argv[], TCHAR *envp[])
