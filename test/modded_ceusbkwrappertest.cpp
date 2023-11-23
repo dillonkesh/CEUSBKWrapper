@@ -196,8 +196,8 @@ static void sendControlRequest(
     UINT8 bRequest,
     UINT16 wValue,
     UINT16 wIndex,
-    UINT16 wLength,
-    unsigned char* data
+    unsigned char* data,
+    UINT16 wLength    
     )
 {
 	// Parse the device index
@@ -245,12 +245,12 @@ static void sendControlRequest(
 	// Now perform the request
 	DWORD transferred = -1;
 	BOOL status = UkwIssueControlTransfer(device, flags, &header,
-		NULL, 0,
+		NULL, wLength,
 		&transferred,
 		async ? &overlapped : NULL);
 	if (!status) {
 		printf("Control transfer failed with %d.\n", GetLastError());
-		return;
+		return -1;
 	}
 	if (async) {
 		if (!waitForOverlapped(overlapped)) {
@@ -926,6 +926,7 @@ static BOOL handleCommand(char line[])
 	else if (line[0] == 'm' &&
 		gDeviceHandle != INVALID_HANDLE_VALUE &&
 		gDeviceListSize > 0)
+        setupSerial(line + 1)
 		sendControlRequest(line + 1);
 	else if (line[0] == 'a' &&
 		gDeviceHandle != INVALID_HANDLE_VALUE &&
@@ -1001,6 +1002,44 @@ static void checkDeviceNotificationQueue(HANDLE& queue)
 			wprintf(L"\nDevice detached: %s\n", detail->szName);
 		}
 	}
+}
+
+static int setupSerial(char line[])
+{
+    int rc = 0;
+
+    // Set Line State
+    rc = sendControlRequest(
+        line, 
+        0x21, 
+        0x22, 
+        0x01 | 0x02, 
+        0,
+        0,
+        0
+        );
+    if (rc < 0) {
+        printf(stderr, "setupSerial(): Error during Set Line State control transfer");
+        return -1;
+    }
+    
+    // Set Line Encoding to 115200
+    unsigned char encoding[] = { 0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08 };
+    rc = sendControlRequest(
+        line,
+        0x21,
+        0x20,
+        0,
+        0,
+        encoding,
+        sizeof(encoding),
+        0
+        );
+    if (rc < 0) {
+        printf(stderr, "setupSerial(): Error during Set Line State control transfer");
+        return -1;
+    }
+    
 }
 
 int _tmain(int argc, TCHAR *argv[], TCHAR *envp[])
