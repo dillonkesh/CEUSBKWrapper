@@ -912,7 +912,7 @@ static int setupSerial(char line[])
         0x22, 
         0x03, // 0x01 OR 0x02 =  0x03
         0,
-        0,
+        (unsigned char*)0,
         0
         );
     if (rc < 0) {
