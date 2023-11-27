@@ -930,7 +930,6 @@ static int setupSerial(char line[])
         0,
         encoding,
         sizeof(encoding),
-        0
         );
     if (rc < 0) {
         printf("\nsetupSerial(): Error during Set Line Encoding control transfer");
