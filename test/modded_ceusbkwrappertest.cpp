@@ -190,7 +190,7 @@ static BOOL waitForOverlapped(OVERLAPPED& overlapped)
 	return FALSE;
 }
 
-static void sendControlRequest(
+int void sendControlRequest(
     char line[], 
     UINT8 bmRequestType, 
     UINT8 bRequest,
@@ -722,7 +722,7 @@ static BOOL findAAPEndpoints(UKW_DEVICE& device, UCHAR& epin, UCHAR& epout)
 	}
 
 	// Really, we should scan the interface descriptor for this info.
-	// Fake it for now
+	// Fake it RPI USB Gadget for now
 	epin = 0x81;
 	epout = 0x01;
 	return TRUE;
@@ -901,6 +901,45 @@ static void performHaltOperation(char line[])
 	}
 }
 
+static int setupSerial(char line[])
+{
+    int rc = 0;
+
+    // Set Control Line State
+    rc = sendControlRequest(
+        line, 
+        0x21, 
+        0x22, 
+        0x03, // 0x01 OR 0x02 =  0x03
+        0,
+        0,
+        0
+        );
+    if (rc < 0) {
+        printf("\nsetupSerial(): Error during Set Line State control transfer");
+        return -1;
+    }
+    
+    // Set Line Encoding to 115200
+    unsigned char encoding[] = { 0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08 };
+    rc = sendControlRequest(
+        line,
+        0x21,
+        0x20,
+        0,
+        0,
+        encoding,
+        sizeof(encoding),
+        0
+        );
+    if (rc < 0) {
+        printf("\nsetupSerial(): Error during Set Line Encoding control transfer");
+        return -1;
+    }
+    return 0;
+}
+
+
 static BOOL handleCommand(char line[])
 {
     int rc = 0;
@@ -1009,43 +1048,6 @@ static void checkDeviceNotificationQueue(HANDLE& queue)
 	}
 }
 
-static int setupSerial(char line[])
-{
-    int rc = 0;
-
-    // Set Line State
-    rc = sendControlRequest(
-        line, 
-        0x21, 
-        0x22, 
-        0x01 | 0x02, 
-        0,
-        0,
-        0
-        );
-    if (rc < 0) {
-        printf("\nsetupSerial(): Error during Set Line State control transfer");
-        return -1;
-    }
-    
-    // Set Line Encoding to 115200
-    unsigned char encoding[] = { 0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08 };
-    rc = sendControlRequest(
-        line,
-        0x21,
-        0x20,
-        0,
-        0,
-        encoding,
-        sizeof(encoding),
-        0
-        );
-    if (rc < 0) {
-        printf("\nsetupSerial(): Error during Set Line State control transfer");
-        return -1;
-    }
-    return 0;
-}
 
 int _tmain(int argc, TCHAR *argv[], TCHAR *envp[])
 {
