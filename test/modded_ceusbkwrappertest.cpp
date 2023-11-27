@@ -205,11 +205,11 @@ static int sendControlRequest(
 	line = parseNumber(line, devIdx);
 	if (!line) {
 		printf("Please provide a decimal device number following the command\n");
-		return;
+		return -1;
 	}
 	if (devIdx >= gDeviceListSize || devIdx < 0) {
 		printf("Invalid device index '%d' provided\n", devIdx);
-		return;
+		return -1;
 	}
 	
 	// Parse the option async parameter
@@ -233,7 +233,7 @@ static int sendControlRequest(
 		overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 		if (overlapped.hEvent == NULL) {
 			printf("Failed to create event for asynchronous request.\n");
-			return;
+			return -1;
 		}
 	}
 	DWORD flags = UKW_TF_OUT_TRANSFER;
@@ -929,7 +929,7 @@ static int setupSerial(char line[])
         0,
         0,
         encoding,
-        sizeof(encoding),
+        sizeof(encoding)
         );
     if (rc < 0) {
         printf("\nsetupSerial(): Error during Set Line Encoding control transfer");
