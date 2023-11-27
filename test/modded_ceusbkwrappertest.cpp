@@ -190,7 +190,7 @@ static BOOL waitForOverlapped(OVERLAPPED& overlapped)
 	return FALSE;
 }
 
-int void sendControlRequest(
+static int sendControlRequest(
     char line[], 
     UINT8 bmRequestType, 
     UINT8 bRequest,
