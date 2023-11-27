@@ -931,7 +931,7 @@ static BOOL handleCommand(char line[])
         // Setup Serial Connection
         rc = setupSerial(line + 1);
         if (rc < 0) {
-            printf(stderr, "setupSerial()");
+            printf("\nsetupSerial() failed!");
         }   
 	else if (line[0] == 'a' &&
 		gDeviceHandle != INVALID_HANDLE_VALUE &&
@@ -1024,7 +1024,7 @@ static int setupSerial(char line[])
         0
         );
     if (rc < 0) {
-        printf("setupSerial(): Error during Set Line State control transfer");
+        printf("\nsetupSerial(): Error during Set Line State control transfer");
         return -1;
     }
     
@@ -1041,7 +1041,7 @@ static int setupSerial(char line[])
         0
         );
     if (rc < 0) {
-        printf("setupSerial(): Error during Set Line State control transfer");
+        printf("\nsetupSerial(): Error during Set Line State control transfer");
         return -1;
     }
     return 0;
